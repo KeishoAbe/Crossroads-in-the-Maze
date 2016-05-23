@@ -32,16 +32,16 @@ public class FadeManager : MonoBehaviour
     #endregion Singleton
 
     //デバッグモード
-    public bool debugMode = true;
+    public bool m_DebugMode = true;
 
     //フェード中の透明度
-    private float fadeAlpha = 0;
+    private float m_FadeAlpha = 0;
 
     //フェード中かどうか
-    private bool isFading = false;
+    private bool m_IsFading = false;
 
     //フェードの色
-    public Color fadeColor = Color.black;
+    public Color m_FadeColor = Color.black;
 
 
     public void Awake()
@@ -65,16 +65,16 @@ public class FadeManager : MonoBehaviour
         //DebugMode用GUIメニュー
     public void OnGUI()
     {
-        if (this.isFading)
+        if (this.m_IsFading)
         {
-            this.fadeColor.a = this.fadeAlpha;
-            GUI.color = this.fadeColor;
+            this.m_FadeColor.a = this.m_FadeAlpha;
+            GUI.color = this.m_FadeColor;
             GUI.DrawTexture(new Rect(0, 0, Screen.width, Screen.height), Texture2D.whiteTexture);
         }
 
-        if (this.debugMode)
+        if (this.m_DebugMode)
         {
-            if (!this.isFading)
+            if (!this.m_IsFading)
             {
                 //Scene一覧の作成
                 List<string> scenes = new List<string>();
@@ -126,11 +126,11 @@ public class FadeManager : MonoBehaviour
     private IEnumerator TransScene(string scene, float interval)
     {
         //フェードアウト
-        this.isFading = true;
+        this.m_IsFading = true;
         float time = 0;
         while (time <= interval)
         {
-            this.fadeAlpha = Mathf.Lerp(0.0f, 1.0f, time / interval);   //Mathf.Lerpについて　http://docs.unity3d.com/jp/current/ScriptReference/Mathf.Lerp.html
+            this.m_FadeAlpha = Mathf.Lerp(0.0f, 1.0f, time / interval);   //Mathf.Lerpについて　http://docs.unity3d.com/jp/current/ScriptReference/Mathf.Lerp.html
             time += Time.deltaTime;
             yield return 0;
         }
@@ -142,13 +142,11 @@ public class FadeManager : MonoBehaviour
         time = 0;
         while (time <= interval)
         {
-            this.fadeAlpha = Mathf.Lerp(1.0f, 0.0f, time / interval);
+            this.m_FadeAlpha = Mathf.Lerp(1.0f, 0.0f, time / interval);
             time += Time.deltaTime;
             yield return 0;
         }
-
-        this.isFading = false;
-
+        this.m_IsFading = false;
     }
 
 }

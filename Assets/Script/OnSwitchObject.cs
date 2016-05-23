@@ -4,9 +4,9 @@ using System.Collections;
 public class OnSwitchObject : MonoBehaviour
 {
     [SerializeField]
-    private GameObject derateObject;
+    private GameObject m_DerateObject;
 
-    private bool objectState = true;
+    private bool m_ObjectState = true;
 
     void Start()
     {
@@ -22,8 +22,8 @@ public class OnSwitchObject : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            objectState = !objectState;
+            m_ObjectState = !m_ObjectState;
         }
-        derateObject.SetActive(objectState);
+        m_DerateObject.SetActive(m_ObjectState);
     }
 }

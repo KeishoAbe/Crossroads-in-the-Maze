@@ -3,69 +3,69 @@ using System.Collections;
 
 public class TPSCamera : MonoBehaviour
 {
-    public float smooth = 3.0f;
-    Transform player;
-
     [SerializeField]
-    GameObject _player;
+    private float m_Smooth = 3.0f;
+    
+    [SerializeField]
+    GameObject m_Player;
 
-    Transform standardPos;
-    Transform frontPos;
-    Transform jumpPos;
-    Transform topVewPos;
+    Transform m_StandardPos;
+    Transform m_FrontPos;
+    Transform m_JumpPos;
+    Transform m_TopVewPos;
 
-    bool quickSwitch = false;
+    private bool m_QuickSwitch = false;
 
     void Start()
     {
-        standardPos = GameObject.Find("CamPos").transform;
+        m_StandardPos = GameObject.Find("CamPos").transform;
        
-        transform.position = standardPos.position;
-        transform.forward = standardPos.forward;
+        transform.position = m_StandardPos.position;
+        transform.forward = m_StandardPos.forward;
     }
 
     void FixedUpdate()
     {
         setPositionViewCamera();
 
-        if (Input.GetButton("Fire1") || _player.GetComponent<CharacterControl>()._cameratype == 0)
+        if (Input.GetButton("Fire1") || m_Player.GetComponent<CharacterControl>().m_CameraType == 0)
         {
            // standardPos = GameObject.Find("CamPos").transform;
         }
-        else if (_player.GetComponent<CharacterControl>()._cameratype == 1)
+        else if (m_Player.GetComponent<CharacterControl>().m_CameraType == 1)
         {
-            standardPos = GameObject.Find("TopViewPos").transform;
+            m_StandardPos = GameObject.Find("TopViewPos").transform;
         }
       
     }
 
     void setPositionViewCamera()
     {
-        if (quickSwitch == false)
+        if (m_QuickSwitch == false)
         {
-            transform.position = Vector3.Lerp(transform.position, standardPos.position, Time.fixedDeltaTime * smooth);
-            transform.forward = Vector3.Lerp(transform.forward, standardPos.forward, Time.fixedDeltaTime * smooth);
+            transform.position = Vector3.Lerp(transform.position, m_StandardPos.position, Time.fixedDeltaTime * m_Smooth);
+            transform.forward = Vector3.Lerp(transform.forward, m_StandardPos.forward, Time.fixedDeltaTime * m_Smooth);
         }
         else
         {
-            transform.position = standardPos.position;
-            transform.forward = standardPos.forward;
-            quickSwitch = false;
+            transform.position = m_StandardPos.position;
+            transform.forward = m_StandardPos.forward;
+            m_QuickSwitch = false;
         }
     }
 
     void setPositionTopViewCamera()
     {
-        if (quickSwitch == false)
+        if (m_QuickSwitch == false)
         {
-            transform.position = Vector3.Lerp(transform.position, topVewPos.position, Time.fixedDeltaTime * smooth);
-            transform.forward = Vector3.Lerp(transform.forward, topVewPos.forward, Time.fixedDeltaTime * smooth);
+            transform.position = Vector3.Lerp(transform.position, m_TopVewPos.position, Time.fixedDeltaTime * m_Smooth);
+            transform.forward = Vector3.Lerp(transform.forward, m_TopVewPos.forward, Time.fixedDeltaTime * m_Smooth);
         }
         else
         {
-            transform.position = topVewPos.position;
-            transform.forward = topVewPos.forward;
-            quickSwitch = false;
+            transform.position = m_TopVewPos.position;
+            transform.forward = m_TopVewPos.forward;
+            m_QuickSwitch = false;
         }
     }
     

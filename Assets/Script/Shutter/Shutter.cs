@@ -36,7 +36,7 @@ public class Shutter : MonoBehaviour
 
     private void OpenAndClosed()
     {
-        if (switchObj.GetComponent<OnSwitch>().isOnSwitch && isOpen == false) { isOpen = true; }
+        if (switchObj.GetComponent<OnSwitch>().m_IsOnSwitch && isOpen == false) { isOpen = true; }
 
         if (isOpen)
         {
@@ -45,7 +45,7 @@ public class Shutter : MonoBehaviour
         }
         if (openlength <= 0)
         {
-            switchObj.GetComponent<OnSwitch>().isOnSwitch = false;
+            switchObj.GetComponent<OnSwitch>().m_IsOnSwitch = false;
             isOpen = false;
             openWaiteTime--;
             if (openWaiteTime == 0) { isClose = true; }

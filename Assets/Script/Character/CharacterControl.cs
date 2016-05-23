@@ -8,58 +8,58 @@ using System.Collections;
 public class CharacterControl : MonoBehaviour
 {
 
-    public float animSpeed = 1.5f;       //アニメーション再生速度
-    public float lookSmoother = 3.0f;   //カメラの動きの設定スムージング
-    public bool useCurves = true;
+    public float m_AnimSpeed = 1.5f;       //アニメーション再生速度
+    public float m_LookSmoother = 3.0f;   //カメラの動きの設定スムージング
+    public bool m_UseCurves = true;
 
-    public bool isChangeAngle = false;
-    public float useCurvesHeight = 0.5f;
-    public int _cameratype = 0;
+    public bool m_IsChangeAngle = false;
+    public float m_UseCurvesHeight = 0.5f;
+    public int m_CameraType = 0;
 
     //--------------------------------
-    private Vector3 moveDirection,
-                    cameraDirection;
+    private Vector3 m_MoveDirection,
+                    m_CameraDirection;
 
-    private float rotateX = 0,
-                    rotateY = 0;
+    private float m_RotateX = 0,
+                    m_RotateY = 0;
     //--------------------------------
 
     //キャラクターコントロール用パラメーター
     [SerializeField]
-    private float forwardSpeed = 7.0f,   //前進速度
-                 backwardSpeed = 7.0f,  //後退速度
-                 rotateSpeed = 2.0f,    //旋回速度
-                 jumpPower = 3.0f;      //ジャンプ量
+    private float m_ForwardSpeed = 7.0f,   //前進速度
+                  m_BackwardSpeed = 7.0f,  //後退速度
+                  m_RotateSpeed = 2.0f,    //旋回速度
+                  m_JumpPower = 3.0f;      //ジャンプ量
 
-    private CapsuleCollider col;        //カプセルコライダの参照
-    private Rigidbody rib;              //リジッドボディの参照
+    private CapsuleCollider m_Col;        //カプセルコライダの参照
+    private Rigidbody m_Rib;              //リジッドボディの参照
 
-    private Vector3 velocity;           //カプセルコライダの移動量
-    private float orgColHeght;
-    private Vector3 orgVecColCenter;
+    private Vector3 m_Velocity;           //カプセルコライダの移動量
+    private float m_OrgColHeght;
+    private Vector3 m_OrgVecColCenter;
 
-    private Animator anim;                          //アタッチされるアニメーターへの参照
-    private AnimatorStateInfo currentBasestate;     //base layerで使われる、アニメーターの現在の状態の参照
+    private Animator m_Anim;                          //アタッチされるアニメーターへの参照
+    private AnimatorStateInfo m_CurrentBaseState;     //base layerで使われる、アニメーターの現在の状態の参照
 
-    private GameObject cameraObject;                //メインカメラへの参照
+    private GameObject m_CameraObject;                //メインカメラへの参照
 
     //各アニメーターのステートへの参照
-    static int idleState = Animator.StringToHash("Base Layer.Idle"),
-               runState = Animator.StringToHash("Base Layer.Run"),
-               jumpState = Animator.StringToHash("Base Layer.Jump"),
-               Attack1 = Animator.StringToHash("Base Layer.Attack1"),
-               Attack2 = Animator.StringToHash("Base Layer.Attack2"),
-               Attack3 = Animator.StringToHash("Base Layer.Attack3");
+    static int m_IdleState = Animator.StringToHash("Base Layer.Idle"),
+               m_RunState = Animator.StringToHash("Base Layer.Run"),
+               m_JumpState = Animator.StringToHash("Base Layer.Jump"),
+               m_Attack1 = Animator.StringToHash("Base Layer.Attack1"),
+               m_Attack2 = Animator.StringToHash("Base Layer.Attack2"),
+               m_Attack3 = Animator.StringToHash("Base Layer.Attack3");
 
     void Start()
     {
-        anim = GetComponent<Animator>();
-        col = GetComponent<CapsuleCollider>();
-        rib = GetComponent<Rigidbody>();
+        m_Anim = GetComponent<Animator>();
+        m_Col = GetComponent<CapsuleCollider>();
+        m_Rib = GetComponent<Rigidbody>();
 
-        cameraObject = GameObject.FindWithTag("MainCamera");
-        orgColHeght = col.height;
-        orgVecColCenter = col.center;
+        m_CameraObject = GameObject.FindWithTag("MainCamera");
+        m_OrgColHeght = m_Col.height;
+        m_OrgVecColCenter = m_Col.center;
     }
 
     void FixedUpdate()
@@ -67,19 +67,14 @@ public class CharacterControl : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
         Input.GetJoystickNames();
-        anim.SetFloat("Speed", vertical);
-        //anim.SetFloat("Direction", horizontal);
-        anim.speed = animSpeed;
-        currentBasestate = anim.GetCurrentAnimatorStateInfo(0);
-        rib.useGravity = true;
 
-        velocity = new Vector3(horizontal, 0, vertical);
-        velocity = transform.TransformDirection(velocity);
+        m_Anim.SetFloat("SpeedRight", horizontal);
+        m_Anim.speed = m_AnimSpeed;
+        m_CurrentBaseState = m_Anim.GetCurrentAnimatorStateInfo(0);
+        m_Rib.useGravity = true;
 
-        if (vertical > 0.1) { velocity *= forwardSpeed; }
-        else if (vertical < -0.1) { velocity *= forwardSpeed; }
-        else if (horizontal > 0.1) { velocity *= forwardSpeed; }
-        else if (horizontal < -0.1) { velocity *= forwardSpeed; }
+        //
+        LookRunState(horizontal, vertical);
 
         JumpProc();
 
@@ -88,44 +83,64 @@ public class CharacterControl : MonoBehaviour
         PlayerAttack2();
         PlayerAttack3();
 
-        //上下キーによるキャラクター移動
-        transform.localPosition += velocity * Time.fixedDeltaTime;
-        //左右キーによるキャラクター旋回
-
-        rotateX = Input.GetAxis("Vertical");
-        rotateY = Input.GetAxis("Horizontal");
-        moveDirection = new Vector3(rotateY, 0, rotateX);
-        transform.LookAt(transform.position + moveDirection);
+        //カメラの位置と軸のデータ取得と左スティック入力による移動処理
+        Vector3 cameraForward = Vector3.Scale(Camera.main.transform.forward, new Vector3(1, 0, 1)).normalized;
+        Vector3 direction = cameraForward * (vertical * 0.1f) + Camera.main.transform.right * (horizontal * 0.1f);
+        transform.position += direction;
+        transform.LookAt(transform.position + direction);
 
 
-        if (currentBasestate.fullPathHash == runState)
+        if (m_CurrentBaseState.fullPathHash == m_RunState)
         {
-            if (useCurves)
+            if (m_UseCurves)
             {
                 resetCollider();
             }
         }
     }//-----------------------------------------------
 
+    private void LookRunState(float horizontal, float vertical)
+    {
+        if (vertical == 0 && horizontal == 0)
+        {
+            m_Anim.SetBool("Run", false);
+        }
+        else if (vertical > 0.5f)
+        {
+            m_Anim.SetBool("Run", true);
+        }
+        else if (vertical < -0.5f)
+        {
+            m_Anim.SetBool("Run", true);
+        }
+        else if (horizontal > 0.5f)
+        {
+            m_Anim.SetBool("Run", true);
+        }
+        else if (horizontal < -0.5f)
+        {
+            m_Anim.SetBool("Run", true);
+        }
+    }
 
     private void PlayerAttack3()
     {
         //XboxではYの割り当てがJumpになってるので今回はJumpに設定
         if (Input.GetButton("Jump"))
         {
-            if (currentBasestate.fullPathHash == idleState)
+            if (m_CurrentBaseState.fullPathHash == m_IdleState)
             {
-                if (!anim.GetBool("Attack3"))
+                if (!m_Anim.GetBool("Attack3"))
                 {
-                    anim.SetBool("Attack3", true);
+                    m_Anim.SetBool("Attack3", true);
                 }
             }
         }
-        else if (currentBasestate.fullPathHash == Attack3)
+        else if (m_CurrentBaseState.fullPathHash == m_Attack3)
         {
-            if (!anim.IsInTransition(0))
+            if (!m_Anim.IsInTransition(0))
             {
-                anim.SetBool("Attack3", false);
+                m_Anim.SetBool("Attack3", false);
             }
         }
     }
@@ -134,19 +149,19 @@ public class CharacterControl : MonoBehaviour
     {
         if (Input.GetButton("Fire3"))
         {
-            if (currentBasestate.fullPathHash == idleState)
+            if (m_CurrentBaseState.fullPathHash == m_IdleState)
             {
-                if (!anim.GetBool("Attack2"))
+                if (!m_Anim.GetBool("Attack2"))
                 {
-                    anim.SetBool("Attack2", true);
+                    m_Anim.SetBool("Attack2", true);
                 }
             }
         }
-        else if (currentBasestate.fullPathHash == Attack2)
+        else if (m_CurrentBaseState.fullPathHash == m_Attack2)
         {
-            if (!anim.IsInTransition(0))
+            if (!m_Anim.IsInTransition(0))
             {
-                anim.SetBool("Attack2", false);
+                m_Anim.SetBool("Attack2", false);
             }
         }
     }
@@ -155,20 +170,20 @@ public class CharacterControl : MonoBehaviour
     {
         if (Input.GetButton("Fire2"))
         {
-            if (currentBasestate.fullPathHash == idleState)
+            if (m_CurrentBaseState.fullPathHash == m_IdleState)
             {
-                if (!anim.GetBool("Attack1"))
+                if (!m_Anim.GetBool("Attack1"))
                 {
-                    anim.SetBool("Attack1", true);
+                    m_Anim.SetBool("Attack1", true);
                 }
             }
         }
-        else if (currentBasestate.fullPathHash == Attack1)
+        else if (m_CurrentBaseState.fullPathHash == m_Attack1)
         {
 
-            if (!anim.IsInTransition(0))
+            if (!m_Anim.IsInTransition(0))
             {
-                anim.SetBool("Attack1", false);
+                m_Anim.SetBool("Attack1", false);
             }
         }
     }
@@ -178,31 +193,31 @@ public class CharacterControl : MonoBehaviour
         //スペースキー入力によるジャンプ処理
         if (Input.GetButtonDown("Fire1"))
         {
-            if (currentBasestate.fullPathHash == idleState || currentBasestate.fullPathHash == runState)
+            if (m_CurrentBaseState.fullPathHash == m_IdleState || m_CurrentBaseState.fullPathHash == m_RunState)
             {
-                if (!anim.IsInTransition(0))
+                if (!m_Anim.IsInTransition(0))
                 {
-                    if (!anim.GetBool("Jump"))
+                    if (!m_Anim.GetBool("Jump"))
                     {
-                        rib.AddForce(Vector3.up * jumpPower, ForceMode.VelocityChange);
-                        anim.SetBool("Jump", true);
+                        m_Rib.AddForce(Vector3.up * m_JumpPower, ForceMode.VelocityChange);
+                        m_Anim.SetBool("Jump", true);
                     }
                 }
             }
         }
         //ジャンプ中の処理
-        else if (currentBasestate.fullPathHash == jumpState)
+        else if (m_CurrentBaseState.fullPathHash == m_JumpState)
         {
             //ステートがトラジション中でない時
-            if (!anim.IsInTransition(0))
+            if (!m_Anim.IsInTransition(0))
             {
-                anim.SetBool("Jump", false);
+                m_Anim.SetBool("Jump", false);
             }
         }
         //Idle中の処理
-        else if (currentBasestate.fullPathHash == idleState)
+        else if (m_CurrentBaseState.fullPathHash == m_IdleState)
         {
-            if (useCurves) { resetCollider(); }
+            if (m_UseCurves) { resetCollider(); }
         }
     }
 
@@ -210,8 +225,8 @@ public class CharacterControl : MonoBehaviour
     //コンポーネントのHeight,Centerの初期値を戻す
     void resetCollider()
     {
-        col.height = orgColHeght;
-        col.center = orgVecColCenter;
+        m_Col.height = m_OrgColHeght;
+        m_Col.center = m_OrgVecColCenter;
     }
 
     void OnTriggerEnter(Collider col)
@@ -220,17 +235,17 @@ public class CharacterControl : MonoBehaviour
 
         if (layerName == "CameraTopPosStage")
         {
-            _cameratype = 1;
+            m_CameraType = 1;
         }
     }
 
     void OnTriggerExit(Collider col)
     {
-        string layerName = LayerMask.LayerToName(col.gameObject.layer);
+        string layerName = LayerMask.LayerToName(m_Col.gameObject.layer);
 
         if (layerName == "CameraTopPosStage")
         {
-            _cameratype = 0;
+            m_CameraType = 0;
         }
     }
 

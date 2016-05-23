@@ -6,18 +6,17 @@ using UnityEngine.SceneManagement;
 
 public class GameTimer : MonoBehaviour
 {
+    [SerializeField]
+    Image[] m_Images = new Image[4];
 
     [SerializeField]
-    Image[] images = new Image[4];
+    Sprite[] m_NumberSprites = new Sprite[10];
 
     [SerializeField]
-    Sprite[] numberSprites = new Sprite[10];
+    private float m_GameTimeMinute;     //分数格納用変数
+    private float m_ChangeTimeSecond;   //秒数格納用変数
 
-    [SerializeField]
-    private float gameTimeMinute;
-    private float changeTimeSecond;
-
-    public float TimeCount
+    public float TimeCount              
     {
         get;
         private set;
@@ -25,26 +24,22 @@ public class GameTimer : MonoBehaviour
 
     void Start()
     {
-        changeTimeSecond = gameTimeMinute * 60;
-        SetTime(changeTimeSecond);
+        m_ChangeTimeSecond = m_GameTimeMinute * 60;
+        SetTime(m_ChangeTimeSecond);
     }
-
-    void Update()
-    {
-
-    }
-
+    
     public void SetTime(float time)
     {
         TimeCount = time;
         StartCoroutine(TimerStart());
     }
 
+    //残り時間の表示
     void SetTimeNumbers(int sec, int value1, int value2)
     {
         string str = string.Format("{0:00}", sec);
-        images[value1].sprite = numberSprites[Convert.ToInt32(str.Substring(0, 1))];
-        images[value2].sprite = numberSprites[Convert.ToInt32(str.Substring(1, 1))];
+        m_Images[value1].sprite = m_NumberSprites[Convert.ToInt32(str.Substring(0, 1))];
+        m_Images[value2].sprite = m_NumberSprites[Convert.ToInt32(str.Substring(1, 1))];
     }
 
     IEnumerator TimerStart()

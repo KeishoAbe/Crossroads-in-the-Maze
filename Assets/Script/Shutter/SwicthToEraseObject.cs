@@ -3,31 +3,18 @@ using System.Collections;
 
 public class SwicthToEraseObject : MonoBehaviour
 {
-
-    public GameObject delateToObject;
+    public GameObject m_DelateToObject;
 
     [SerializeField]
-    private string hitToObjectLayerName;
-
-    void Start()
-    {
-
-    }
-
-    void Update()
-    {
-
-    }
+    private string m_HitToObjectLayerName;
 
     void OnTriggerEnter(Collider col)
     {
         string layerName = LayerMask.LayerToName(col.gameObject.layer);
         
-        if (layerName == hitToObjectLayerName)
+        if (layerName == m_HitToObjectLayerName)
         {
-            Destroy(delateToObject);
+            Destroy(m_DelateToObject);
         }
-
     }
-
 }

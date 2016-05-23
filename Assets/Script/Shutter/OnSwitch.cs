@@ -3,14 +3,14 @@ using System.Collections;
 
 public class OnSwitch : MonoBehaviour
 {
-    public bool canEnter,
-                canOnSwitch = true,
-                isOnSwitch = false;
+    public bool m_CanEnter,
+                m_CanOnSwitch = true,
+                m_IsOnSwitch = false;
 
     [SerializeField]
-    private float notInputReceptionTime;
+    private float m_NotInputReceptionTime;
 
-    float notInputTime;
+    private float m_NotInputTime;
 
     void Start()
     {
@@ -19,26 +19,26 @@ public class OnSwitch : MonoBehaviour
 
     private void Setup()
     {
-        notInputTime = notInputReceptionTime * 60;
+         m_NotInputTime = m_NotInputReceptionTime * 60;
     }
 
     void Update()
     {
-        if (canEnter)
+        if (m_CanEnter)
         {
-            if (Input.GetKeyDown(KeyCode.C) && canOnSwitch)
+            if (Input.GetKeyDown(KeyCode.C) && m_CanOnSwitch)
             {
-                canOnSwitch = false;
-                isOnSwitch = true;
+                m_CanOnSwitch = false;
+                m_IsOnSwitch = true;
             }
         }
-        if (!canOnSwitch)
+        if (!m_CanOnSwitch)
         {
-            notInputTime--;
+            m_NotInputTime--;
         }
-        if (notInputTime == 0)
+        if (m_NotInputTime == 0)
         {
-            canOnSwitch = true;
+            m_CanOnSwitch = true;
             Setup();
         }
     }
@@ -46,12 +46,12 @@ public class OnSwitch : MonoBehaviour
     void OnTriggerEnter(Collider col)
     {
         string layerName = LayerMask.LayerToName(col.gameObject.layer);
-        if (layerName == "Player") { canEnter = true; }
+        if (layerName == "Player") { m_CanEnter = true; }
     }
 
     void OnTriggerExit(Collider col)
     {
         string layerName = LayerMask.LayerToName(col.gameObject.layer);
-        if (layerName == "Player") { canEnter = false; }
+        if (layerName == "Player") { m_CanEnter = false; }
     }
 }

@@ -4,14 +4,9 @@ using System.Collections;
 public class OnDerate : MonoBehaviour
 {
     [SerializeField]
-    private GameObject derateObject;
+    private GameObject m_DerateObject;
 
-    private bool objectState = true;
-
-    void Start()
-    {
-        
-    }
+    private bool m_ObjectState = true;
 
     void Update()
     {
@@ -22,8 +17,8 @@ public class OnDerate : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
-            objectState = !objectState;
+            m_ObjectState = !m_ObjectState;
         }
-        derateObject.SetActive(objectState);
+        m_DerateObject.SetActive(m_ObjectState);
     }
 }

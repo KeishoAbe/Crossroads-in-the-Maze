@@ -5,13 +5,13 @@ using System.Collections;
 public class CharacterRespawn : MonoBehaviour
 {
     [SerializeField]
-    Vector3 respawnPos;
+    Vector3 m_RespawnPos;
     
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Backspace))
         {
-            transform.position = new Vector3(respawnPos.x, respawnPos.y, respawnPos.z);
+            transform.position = new Vector3(m_RespawnPos.x, m_RespawnPos.y, m_RespawnPos.z);
         }
     }
 
@@ -20,7 +20,7 @@ public class CharacterRespawn : MonoBehaviour
         string layerName = LayerMask.LayerToName(col.gameObject.layer);
         if (layerName == "DestroyArea")
         {
-            transform.position = new Vector3(respawnPos.x, respawnPos.y, respawnPos.z);
+            transform.position = new Vector3(m_RespawnPos.x, m_RespawnPos.y, m_RespawnPos.z);
         }
     }
 }
